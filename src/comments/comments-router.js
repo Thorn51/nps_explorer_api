@@ -12,10 +12,10 @@ const bodyParser = express.json();
 const serializeComment = comment => ({
   id: comment.id,
   text: xss(comment.comment_text),
-  user: comment.user,
-  author: comment.author_name,
-  park: comment.park_code,
-  date: comment.date_submitted
+  userId: comment.author_id,
+  authorName: comment.author_name,
+  parkCode: comment.park_code,
+  dateSubmitted: comment.date_submitted
 });
 
 commentsRouter
