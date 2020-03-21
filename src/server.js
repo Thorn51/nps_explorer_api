@@ -4,7 +4,7 @@ const app = require("./app");
 const { PORT, DATABASE_URL } = require("./config");
 
 const db = knex({
-  client: "db",
+  client: "pg",
   connection: DATABASE_URL
 });
 
