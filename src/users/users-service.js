@@ -67,13 +67,13 @@ const UsersService = {
   },
   serializeUser(user) {
     return {
-      userId: user.id,
-      firstName: xss(user.first_name),
-      lastName: xss(user.last_name),
+      id: user.userId,
+      first_name: xss(user.firstName),
+      last_name: xss(user.lastName),
       email: xss(user.email),
       nickname: xss(user.nickname),
-      homeState: user.home_state,
-      dateCreated: user.date_created
+      home_state: user.homeState,
+      date_created: user.dateCreated
     };
   }
 };
