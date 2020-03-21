@@ -8,16 +8,6 @@ const { requireAuth } = require("../middleware/jwt-auth");
 const commentsRouter = express.Router();
 const bodyParser = express.json();
 
-// SECURITY  -> Remove xss content from comments submitted through the client
-const serializeComment = comment => ({
-  id: comment.id,
-  text: xss(comment.comment_text),
-  userId: comment.author_id,
-  authorName: comment.author_name,
-  parkCode: comment.park_code,
-  dateSubmitted: comment.date_submitted
-});
-
 commentsRouter
   .route("/")
   .all(requireAuth)

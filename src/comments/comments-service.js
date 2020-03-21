@@ -35,5 +35,16 @@ const CommentsService = {
       .from("comment")
       .where({ id })
       .update();
+  },
+  // SECURITY  -> Remove xss content from comments submitted through the client
+  serializeComment(comment) {
+    return {
+      id: comment.id,
+      text: xss(comment.comment_text),
+      userId: comment.author_id,
+      authorName: comment.author_name,
+      parkCode: comment.park_code,
+      dateSubmitted: comment.date_submitted
+    };
   }
 };
