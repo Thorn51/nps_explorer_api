@@ -3,15 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
+const usersRouter = require("./users/users-router");
 
 const app = express();
 
 app.use(helmet());
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
+app.use("/api/users", usersRouter);
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
