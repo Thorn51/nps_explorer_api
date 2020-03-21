@@ -11,10 +11,11 @@ const bodyParser = express.json();
 // SECURITY  -> Remove xss content from comments submitted through the client
 const serializeComment = comment => ({
   id: comment.id,
-  text: xss(comment.text),
-  author: comment.author,
+  text: xss(comment.comment_text),
+  user: comment.user,
+  author: comment.author_name,
   park: comment.park_code,
-  date_submitted: comment.date_submitted
+  date: comment.date_submitted
 });
 
 commentsRouter
