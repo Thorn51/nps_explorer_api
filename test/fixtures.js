@@ -42,3 +42,30 @@ function makeUsersArray() {
     }
   ];
 }
+
+function makeXssUser() {
+  return [
+    {
+      id: 1,
+      first_name: "John",
+      last_name: "Doe",
+      email: "jdoe@devevlopmenttesting.com",
+      password: "notRealForDev!1",
+      nickname: null,
+      home_state: null,
+      date_created: "2020-12-21T07:00:00.000Z"
+    },
+    {
+      id: 2,
+      first_name: '<script>alert("xss");</script>',
+      last_name:
+        '<img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+      email: '<script>alert("xss");</script>',
+      password: '<script>alert("xss");</script>',
+      nickname: '<script>alert("xss");</script>',
+      date_created: "2020-01-30T07:00:00.000Z",
+      home_state: null,
+      date_created: "2020-01-30T07:00:00.000Z"
+    }
+  ];
+}
