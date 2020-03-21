@@ -3,6 +3,7 @@ const knex = require("knex");
 const app = require("../src/app");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { makeUsersArray, makeXssUser } = require("./fixtures");
 
 describe.only("/api/users Endpoints", () => {
   let db;
@@ -39,4 +40,37 @@ describe.only("/api/users Endpoints", () => {
     }));
     return preppedUsers;
   }
+
+  describe("GET /api/users", () => {
+    context("No data in users table", () => {
+      it("Returns an empty array and status 200", () => {
+        return supertest(app)
+          .get("/api/users")
+          .set("Authorization", "bearer " + process.env.API_TOKEN)
+          .expect(200, []);
+      });
+    });
+
+    context("Data in the users table", () => {
+      const testUsers = makeUsersArray();
+
+      beforeEach("Insert test data", () => {
+        return db("users").insert(prepUsers(testUsers));
+      });
+
+      it("GET /api/users responds with status 200 and all of the users", () => {
+        return supertest(app)
+          .get("/api/users")
+          .set("Authorization", "bearer " + process.env.API_TOKEN)
+          .expect(200)
+          .then(res => {
+            expect(res.body.first_name).to.eql(testUsers.first_name);
+            expect(res.body.last_name).to.eql(testUsers.last_name);
+            expect(res.body.email).to.eql(testUsers.email);
+            expect(res.body.nickname).to.eql(testUsers.nickname);
+            expect(res.body.home_state).to.eql(testUsers.home_state);
+          });
+      });
+    });
+  });
 });
