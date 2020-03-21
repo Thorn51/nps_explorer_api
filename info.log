@@ -1,0 +1,9 @@
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-21T20:20:02.811Z"}
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-21T20:20:03.325Z"}
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-21T21:24:18.399Z"}
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-21T21:24:18.882Z"}
+[31merror[39m: The client API token is missing or incorrect {"timestamp":"2020-03-21T21:28:32.247Z"}
+[31merror[39m: The client API token is missing or incorrect {"timestamp":"2020-03-21T21:29:06.485Z"}
+[31merror[39m: The client API token is missing or incorrect {"timestamp":"2020-03-21T21:29:28.204Z"}
+[31merror[39m: The client API token is missing or incorrect {"timestamp":"2020-03-21T21:29:41.197Z"}
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-21T21:30:22.969Z"}
