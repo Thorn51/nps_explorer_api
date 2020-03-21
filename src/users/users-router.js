@@ -37,3 +37,5 @@ usersRouter
   .delete((req, res, next) => {})
   // Edit user in database -> wired up but not used in client yet
   .patch(bodyParser, (req, res, next) => {});
+
+module.exports = usersRouter;
