@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const logger = require("../logger");
-const UserService = require("./users-service");
+const UsersService = require("./users-service");
 const xss = require("xss");
 const { validateBearerToken } = require("../middleware/basic-auth");
 const { requireAuth } = require("../middleware/jwt-auth");
@@ -14,7 +14,14 @@ usersRouter
   // Check api token
   .all(validateBearerToken)
   // return all users
-  .get((req, res, next) => {})
+  .get((req, res, next) => {
+    UsersService.getAllUsers(req.app.get("db"))
+      .then(users => {
+        res.status(200).json(users.map(UsersService.serializeUser(users)));
+      })
+      .catch(next);
+    logger.info(`GET /users successful`);
+  })
   // Registration -> add user to database
   .post(bodyParser, (req, res, next) => {});
 
