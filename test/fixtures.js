@@ -69,3 +69,8 @@ function makeXssUser() {
     }
   ];
 }
+
+module.exports = {
+  makeUsersArray,
+  makeXssUser
+};
