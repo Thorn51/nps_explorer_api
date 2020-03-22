@@ -21,7 +21,11 @@ describe.only("/api/users Endpoints", () => {
 
   after("Disconnect from nps_explorer_test", () => db.destroy());
 
-  before("Clean table", () =>
+  before("Clean tables", () =>
+    db.raw("TRUNCATE favorite_parks, comments, users RESTART IDENTITY CASCADE")
+  );
+
+  afterEach("Clean tables", () =>
     db.raw("TRUNCATE favorite_parks, comments, users RESTART IDENTITY CASCADE")
   );
 
@@ -46,7 +50,7 @@ describe.only("/api/users Endpoints", () => {
       it("Returns an empty array and status 200", () => {
         return supertest(app)
           .get("/api/users")
-          .set("Authorization", "bearer " + process.env.API_TOKEN)
+          .set("Authorization", "bearer " + process.env.API_Token)
           .expect(200, []);
       });
     });
@@ -61,7 +65,7 @@ describe.only("/api/users Endpoints", () => {
       it("GET /api/users responds with status 200 and all of the users", () => {
         return supertest(app)
           .get("/api/users")
-          .set("Authorization", "bearer " + process.env.API_TOKEN)
+          .set("Authorization", "bearer " + process.env.API_Token)
           .expect(200)
           .then(res => {
             expect(res.body.first_name).to.eql(testUsers.first_name);
@@ -70,6 +74,40 @@ describe.only("/api/users Endpoints", () => {
             expect(res.body.nickname).to.eql(testUsers.nickname);
             expect(res.body.home_state).to.eql(testUsers.home_state);
           });
+      });
+    });
+  });
+
+  describe("POST /api/users", () => {
+    context("User validation", () => {
+      const testUsers = makeUsersArray();
+      const testUser = testUsers[0];
+
+      beforeEach("Insert users", () => {
+        return db.into("users").insert(testUsers);
+      });
+
+      const requiredFields = ["firstName", "lastName", "email", "password"];
+
+      requiredFields.forEach(field => {
+        const newUser = {
+          firstName: "Test",
+          lastName: "User",
+          email: "test.user@testy.com",
+          password: "testyUser1!"
+        };
+
+        it(`Responds with status 400 when '${field}' is missing in the request body`, () => {
+          delete newUser[field];
+
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(newUser)
+            .expect(400, {
+              error: `Missing '${field}' in request body`
+            });
+        });
       });
     });
   });
