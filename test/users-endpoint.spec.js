@@ -200,6 +200,21 @@ describe.only("/api/users Endpoints", () => {
               error: `Invalid email address`
             });
         });
+        it("Responds with status 400 when email already in databse", () => {
+          const duplicateEmail = {
+            firstName: testUser.first_name,
+            lastName: testUser.last_name,
+            email: testUser.email,
+            password: "testyUser1!"
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(duplicateEmail)
+            .expect(400, {
+              error: `The email submitted is already in use.`
+            });
+        });
       });
     });
   });
