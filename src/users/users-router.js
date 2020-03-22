@@ -44,7 +44,7 @@ usersRouter
       }
 
     const passwordError = UsersService.validatePassword(password);
-    const emailError = UsersService.validatePassword(email);
+    const emailError = UsersService.validateEmail(email);
 
     if (passwordError) {
       logger.error(`POST /api/user -> ${passwordError}`);
