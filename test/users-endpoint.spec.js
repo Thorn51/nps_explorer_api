@@ -185,6 +185,21 @@ describe.only("/api/users Endpoints", () => {
               error: `Password must contain 1 upper case, lower case, number, and special character`
             });
         });
+        it("Responds with status 400 when invalid email submitted", () => {
+          const invalidEmail = {
+            firstName: "Test",
+            lastName: "User",
+            email: "test.usertesty.com",
+            password: "testyUser1!"
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(invalidEmail)
+            .expect(400, {
+              error: `Invalid email address`
+            });
+        });
       });
     });
   });
