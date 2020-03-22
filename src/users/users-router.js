@@ -33,9 +33,11 @@ usersRouter
       homeState
     } = req.body;
 
-    for (const field of [firstName, lastName, email, password])
+    for (const field of ["firstName", "lastName", "email", "password"])
       if (!req.body[field]) {
-        logger.error(`POST ap/api/users -> missing '${field}' in request body`);
+        logger.error(
+          `POST ap/api/users -> Registration missing '${field}' in request body`
+        );
         return res.status(400).json({
           error: `Missing '${field}' in request body`
         });
