@@ -23,7 +23,76 @@ usersRouter
     logger.info(`GET /users successful`);
   })
   // Registration -> add user to database
-  .post(bodyParser, (req, res, next) => {});
+  .post(bodyParser, (req, res, next) => {
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      nickname,
+      homeState
+    } = req.body;
+
+    for (const field of [firstName, lastName, email, password])
+      if (!req.body[field]) {
+        logger.error(`POST ap/api/users -> missing '${field}' in request body`);
+        return res.status(400).json({
+          error: `Missing '${field}' in request body`
+        });
+      }
+
+    const passwordError = UsersService.validatePassword(password);
+    const emailError = UsersService.validatePassword(email);
+
+    if (passwordError) {
+      logger.error(`POST /api/user -> ${passwordError}`);
+      return res.status(400).json({ error: passwordError });
+    }
+
+    if (emailError) {
+      logger.error(`POST /api/user -> ${emailError}`);
+      return res.status(400).json({ error: emailError });
+    }
+
+    // Check database if email is already in use
+    UsersService.hasUserWithEmail(req.app.get("db"), email).then(
+      hasUserWithEmail => {
+        if (hasUserWithEmail) {
+          logger.error(
+            `POST /api/users -> Registration attempt failed email already in database`
+          );
+          return res
+            .status(400)
+            .json({ error: "The email submitted is already in use." });
+        }
+
+        return UsersService.hashPassword(password).then(hashedPassword => {
+          const newUser = {
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            password: hashedPassword,
+            nickname,
+            home_state: homeState,
+            date_created: "now()"
+          };
+
+          // Add new user to database
+          return UsersService.insertUser(req.app.get("db"), newUser).then(
+            user => {
+              logger.info(
+                `POST /api/users -> New user with id ${user.id} added to database`
+              );
+              res
+                .status(201)
+                .location(path.posix.join(req.originalUrl, `/${user.id}`))
+                .json(UsersService.serializeUser(user));
+            }
+          );
+        });
+      }
+    );
+  });
 
 usersRouter
   .route("/:user_id")
