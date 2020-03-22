@@ -55,3 +55,13 @@
 [31merror[39m: POST ap/api/users -> Registration missing 'lastName' in request body {"timestamp":"2020-03-22T12:57:01.943Z"}
 [31merror[39m: POST ap/api/users -> Registration missing 'email' in request body {"timestamp":"2020-03-22T12:57:02.039Z"}
 [31merror[39m: POST ap/api/users -> Registration missing 'password' in request body {"timestamp":"2020-03-22T12:57:02.130Z"}
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-22T13:04:50.128Z"}
+[32minfo[39m: GET /users successful {"timestamp":"2020-03-22T13:04:50.852Z"}
+[31merror[39m: POST ap/api/users -> Registration missing 'firstName' in request body {"timestamp":"2020-03-22T13:04:51.029Z"}
+[31merror[39m: POST /api/user -> Password must be longer than 8 characters {"timestamp":"2020-03-22T13:04:51.183Z"}
+[31merror[39m: POST ap/api/users -> Registration missing 'lastName' in request body {"timestamp":"2020-03-22T13:04:51.278Z"}
+[31merror[39m: POST /api/user -> Password must be longer than 8 characters {"timestamp":"2020-03-22T13:04:51.419Z"}
+[31merror[39m: POST ap/api/users -> Registration missing 'email' in request body {"timestamp":"2020-03-22T13:04:51.521Z"}
+[31merror[39m: POST /api/user -> Password must be longer than 8 characters {"timestamp":"2020-03-22T13:04:51.635Z"}
+[31merror[39m: POST ap/api/users -> Registration missing 'password' in request body {"timestamp":"2020-03-22T13:04:51.721Z"}
+[31merror[39m: POST /api/user -> Password must be longer than 8 characters {"timestamp":"2020-03-22T13:04:51.808Z"}
