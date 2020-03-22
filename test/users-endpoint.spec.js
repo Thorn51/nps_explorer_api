@@ -217,5 +217,44 @@ describe.only("/api/users Endpoints", () => {
         });
       });
     });
+
+    context.only("Registration success -> status 201", () => {
+      it("Responds with status 201, serialized user, strong bcrypt password", () => {
+        const newUser = {
+          firstName: "Test",
+          lastName: "User",
+          email: "test.user@testy.com",
+          password: "testyUser1!"
+        };
+        return supertest(app)
+          .post("/api/users")
+          .set("Authorization", "bearer " + process.env.API_Token)
+          .send(newUser)
+          .expect(201)
+          .expect(res => {
+            expect(res.body).to.have.property("id");
+            expect(res.body.firstName).to.eq(newUser.firstName);
+            expect(res.body.lastName).to.eq(newUser.lastName);
+            expect(res.body.email).to.eq(newUser.email);
+            expect(res.body).to.not.have.property("password");
+            expect(res.headers.location).to.eql(`/api/users/${res.body.id}`);
+          })
+          .expect(res =>
+            db("users")
+              .select("*")
+              .where({ id: res.body.id })
+              .first()
+              .then(row => {
+                expect(row.first_name).to.eql(newUser.firstName);
+                expect(row.last_name).to.eql(newUser.lastName);
+                expect(row.email).to.eql(newUser.email);
+                return bcrypt.compare(newUser.password, row.password);
+              })
+              .then(compareMatch => {
+                expect(compareMatch).to.be.true;
+              })
+          );
+      });
+    });
   });
 });
