@@ -108,6 +108,83 @@ describe.only("/api/users Endpoints", () => {
               error: `Missing '${field}' in request body`
             });
         });
+
+        it("Responds with status 400 when password less than 8 characters", () => {
+          const shortPassword = {
+            firstName: "Test",
+            lastName: "User",
+            email: "test.user@testy.com",
+            password: "User1!"
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(shortPassword)
+            .expect(400, {
+              error: `Password must be longer than 8 characters`
+            });
+        });
+        it("Responds with status 400 when password greater than 64 characters", () => {
+          const longPassword = {
+            firstName: "Test",
+            lastName: "User",
+            email: "test.user@testy.com",
+            password: "Aa1!".repeat(17)
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(longPassword)
+            .expect(400, {
+              error: `Password must be less than 64 characters`
+            });
+        });
+        it("Responds with status 400 when password starts with space", () => {
+          const spaceBeginning = {
+            firstName: "Test",
+            lastName: "User",
+            email: "test.user@testy.com",
+            password: " testyUser1!"
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(spaceBeginning)
+            .expect(400, {
+              error: `Password must not start or end with empty spaces`
+            });
+        });
+        it("Responds with status 400 when password ends with space", () => {
+          const spaceEnd = {
+            firstName: "Test",
+            lastName: "User",
+            email: "test.user@testy.com",
+            password: "testyUser1! "
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(spaceEnd)
+            .expect(400, {
+              error: `Password must not start or end with empty spaces`
+            });
+        });
+        // See users-services.js PASSWORD_REGEX
+        it("Responds with status 400 when password fails complexity validation", () => {
+          const notComplex = {
+            firstName: "Test",
+            lastName: "User",
+            email: "test.user@testy.com",
+            password: "testyuser1"
+          };
+          return supertest(app)
+            .post("/api/users")
+            .set("Authorization", "bearer " + process.env.API_Token)
+            .send(notComplex)
+            .expect(400, {
+              error: `Password must contain 1 upper case, lower case, number, and special character`
+            });
+        });
       });
     });
   });
