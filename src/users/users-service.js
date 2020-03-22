@@ -41,7 +41,8 @@ const UsersService = {
     return db("users").select("*");
   },
   insertUser(db, newUser) {
-    return db("users")
+    return db
+      .into("users")
       .insert(newUser)
       .returning("*")
       .then(([user]) => user);
@@ -68,12 +69,12 @@ const UsersService = {
   serializeUser(user) {
     return {
       id: user.userId,
-      first_name: xss(user.firstName),
-      last_name: xss(user.lastName),
+      firstName: xss(user.first_name),
+      lastName: xss(user.last_name),
       email: xss(user.email),
       nickname: xss(user.nickname),
-      home_state: user.homeState,
-      date_created: user.dateCreated
+      homeState: user.home_state,
+      dateCreated: user.date_created
     };
   }
 };
