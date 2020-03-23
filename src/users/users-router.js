@@ -100,13 +100,72 @@ usersRouter
   .route("/:user_id")
   // Check api token
   .all(requireAuth)
-  // Perform validation on requests
-  .all((req, res, next) => {})
+  // Get user by ID
+  .all((req, res, next) => {
+    UsersService.getById(req.app.get("db"), req.params.user_id)
+      .then(user => {
+        if (!user) {
+          logger.error(
+            `GET /api/users/:user_id -> user id=${req.params.user_id} not found`
+          );
+          return res.status(404).json({
+            error: { message: "User doesn't exist" }
+          });
+        }
+        res.user = user;
+        next();
+      })
+      .catch(next);
+  })
   // Return user by :user_id
-  .get((req, res, next) => {})
+  .get((req, res, next) => {
+    res.status(200).json(UsersService.serializeUser(res.user));
+    logger.info(`GET /api/users/:user_id -> user_id=${res.user.id} returned`);
+  })
   // Remove user from database -> wired up but not used in client yet
-  .delete((req, res, next) => {})
+  .delete((req, res, next) => {
+    const { id } = req.params;
+
+    UsersService.deleteUser(req.app.get("db"), id)
+      .then(() => {
+        res.status(204).json({
+          info: { message: `User id=${id} removed from database` }
+        });
+        logger.info(
+          `DELETE /api/users/ -> user with id ${id} removed from database`
+        );
+      })
+      .catch(next);
+  })
   // Edit user in database -> wired up but not used in client yet
-  .patch(bodyParser, (req, res, next) => {});
+  .patch(bodyParser, (req, res, next) => {
+    const { firstName, lastName, email, password, homeState } = req.body;
+    const userUpdate = { firstName, lastName, email, password, homeState };
+
+    const numberOfValues = Object.values(userUpdate).filter(Boolean).length;
+
+    if (numberOfValues === 0) {
+      logger.error(
+        `PATCH /api/users/:user_id -> request body did not contain relevant fields`
+      );
+      return res.status(400).json({
+        error: {
+          message:
+            "Request body must contain firstName, lastName, email, password, and or homeState"
+        }
+      });
+    }
+
+    UsersService.updateUser(req.app.get("db"), req.params.user_id, userUpdate)
+      .then(numRowsAffect => {
+        logger.info(
+          `PATCH /api/users/:user_id -> user id ${req.params.user_id} edited`
+        );
+        res.status(200).json({
+          info: { message: `User with id ${req.params.user_id} edited` }
+        });
+      })
+      .catch(next);
+  });
 
 module.exports = usersRouter;
