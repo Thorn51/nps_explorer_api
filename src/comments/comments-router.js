@@ -61,11 +61,9 @@ commentsRouter
       .then(comment => {
         if (!comment) {
           logger.error(
-            `GET /api/comments/${comment_id} -> Comment doesn't exist`
+            `GET /api/comments/:comment_id-> Comment id ${comment_id} doesn't exist`
           );
-          return res.status(404).json({
-            error: `Comment doesn't exist `
-          });
+          return res.status(404).json({ error: `Comment doesn't exist` });
         }
         res.comment = comment;
         next();
@@ -75,10 +73,19 @@ commentsRouter
   // Get a comment from database by the comment id
   .get((req, res) => {
     res.status(200).json(CommentsService.serializeComment(res.comment));
-    logger.info(`GET /api/comments/${res.id} -> Comment returned`);
+    logger.info(
+      `GET /api/comments/:comment_id -> Comment id ${res.comment.id} returned`
+    );
   })
   // Remove a comment from the database by the comment id
-  .delete((req, res, next) => {})
+  .delete((req, res, next) => {
+    const { comment_id } = req.params;
+
+    CommentsService.deleteComment(req.app.get("db"), comment_id).then(() => {
+      res.status(204).end();
+      logger.info(`DELETE/api/comments -> Comment id ${comment_id} removed`);
+    });
+  })
   // Edit a comment in the database by the comment id
   .patch(bodyParser, (req, res, next) => {});
 
