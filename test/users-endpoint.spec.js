@@ -150,6 +150,45 @@ describe.only("/api/users Endpoints", () => {
 
   describe.only("DELETE /api/users/:user_id", () => {
     const testUsers = makeUsersArray();
+
+    before("Insert users for auth header", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+
+    context("No data in table", () => {
+      it("Returns status 404", () => {
+        const userId = 1234;
+        return supertest(app)
+          .delete(`/api/users/${userId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: { message: `User doesn't exist` } });
+      });
+    });
+
+    context("Data in users table", () => {
+      const testUsers = makeUsersArray();
+
+      beforeEach("Insert users", () => {
+        return db("users").insert(prepUsers(testUsers));
+      });
+
+      it("Responds with status 204 and removes the user", () => {
+        const idToRemove = 2;
+        const remainingUsers = testUsers.filter(user => user.id !== idToRemove);
+        return supertest(app)
+          .delete(`/api/users/${idToRemove}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(204)
+          .then(res => {
+            supertest(app)
+              .get("/api/users")
+              .set("Authorization", makeAuthHeader(testUsers[0]))
+              .then(res => {
+                expect(res.body.id).to.eql(remainingUsers.id);
+              });
+          });
+      });
+    });
   });
 
   describe("POST /api/users", () => {
