@@ -148,7 +148,7 @@ describe.only("/api/users Endpoints", () => {
     });
   });
 
-  describe.only("DELETE /api/users/:user_id", () => {
+  describe("DELETE /api/users/:user_id", () => {
     const testUsers = makeUsersArray();
 
     before("Insert users for auth header", () => {
@@ -187,6 +187,74 @@ describe.only("/api/users Endpoints", () => {
                 expect(res.body.id).to.eql(remainingUsers.id);
               });
           });
+      });
+    });
+  });
+
+  describe.only("PATCH /api/users:user_id", () => {
+    const testUsers = makeUsersArray();
+    before("Insert users for auth header", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+    context("No data in table", () => {
+      it("Returns status 400", () => {
+        const userId = 1234;
+        return supertest(app)
+          .patch(`/api/users/${userId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404);
+      });
+    });
+
+    context("Data in users table", () => {
+      const testUser = makeUsersArray();
+
+      beforeEach("Insert users", () => {
+        return db("users").insert(prepUsers(testUsers));
+      });
+
+      it("Responds with status 204 and updates user", () => {
+        const userToUpdate = 2;
+        const updateUser = {
+          firstName: "Test",
+          lastName: "Patch",
+          email: "test.patch@testify.com"
+        };
+
+        return supertest(app)
+          .patch(`/api/users/${userToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send(updateUser)
+          .expect(200, { info: `User with id ${userToUpdate} edited` });
+      });
+
+      it("Returns status 400 when no required fields in request body", () => {
+        const idToUpdate = 2;
+        return supertest(app)
+          .patch(`/api/users/${idToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send({ irrelevantField: "Foo" })
+          .expect(400, {
+            error: {
+              message:
+                "Request body must contain firstName, lastName, email, password, and or homeState"
+            }
+          });
+      });
+
+      it("Returns status 204 when updating subset of fields", () => {
+        const idToUpdate = 2;
+        const updateUser = {
+          firstName: "Testimus"
+        };
+        return supertest(app)
+          .patch(`/api/users/${idToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send({
+            ...updateUser,
+            fieldToIgnore: "Should not be in GET response"
+          })
+          .expect(200, { info: `User with id ${idToUpdate} edited` });
       });
     });
   });
