@@ -136,9 +136,16 @@ usersRouter
       .catch(next);
   })
   // Edit user in database -> wired up but not used in client yet
+  // CAUTION!!! -> Password update needs careful consideration, and perhaps its own endpoint?
   .patch(bodyParser, (req, res, next) => {
     const { firstName, lastName, email, password, homeState } = req.body;
-    const userUpdate = { firstName, lastName, email, password, homeState };
+    const userUpdate = {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password,
+      home_state: homeState
+    };
 
     const numberOfValues = Object.values(userUpdate).filter(Boolean).length;
 
@@ -160,7 +167,7 @@ usersRouter
           `PATCH /api/users/:user_id -> user id ${req.params.user_id} edited`
         );
         res.status(200).json({
-          info: { message: `User with id ${req.params.user_id} edited` }
+          info: `User with id ${req.params.user_id} edited`
         });
       })
       .catch(next);
