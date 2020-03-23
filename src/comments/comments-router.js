@@ -73,7 +73,10 @@ commentsRouter
       .catch(next);
   })
   // Get a comment from database by the comment id
-  .get((req, res) => {})
+  .get((req, res) => {
+    res.status(200).json(CommentsService.serializeComment(res.comment));
+    logger.info(`GET /api/comments/${res.id} -> Comment returned`);
+  })
   // Remove a comment from the database by the comment id
   .delete((req, res, next) => {})
   // Edit a comment in the database by the comment id
