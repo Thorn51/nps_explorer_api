@@ -55,7 +55,8 @@ const UsersService = {
       .first();
   },
   deleteUser(db, id) {
-    return db("users")
+    return db
+      .from("users")
       .where({ id })
       .delete();
   },
