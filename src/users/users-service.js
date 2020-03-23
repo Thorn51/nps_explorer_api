@@ -48,9 +48,10 @@ const UsersService = {
       .then(([user]) => user);
   },
   getById(db, id) {
-    return db("users")
+    return db
+      .from("users")
       .select("*")
-      .where({ id })
+      .where("id", id)
       .first();
   },
   deleteUser(db, id) {
