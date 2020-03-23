@@ -69,7 +69,63 @@ function makeXssUser() {
   ];
 }
 
+function makeCommentsArray() {
+  return [
+    {
+      id: 1,
+      comment_text:
+        "Ne velit facilis deserunt nam, eum lucilius constituto ex. Odio rebum dignissim ad mel, an ius tollit veniam, vix vidit mazim homero ad. Paulo definitiones et mei, nam ne illum scripta. Zril senserit at has, at est clita eirmod moderatius. Et mnesarchum posidonium sea, aliquid debitis oportere qui et. Vix no ullum adipiscing, an qui nulla temporibus.",
+      date_submitted: "2020-01-30T07:00:00.000Z",
+      author_id: 2,
+      author_name: "Bob",
+      park_code: "yell"
+    },
+    {
+      id: 2,
+      comment_text:
+        "Ne velit facilis deserunt nam, eum lucilius constituto ex. Odio rebum dignissim ad mel, an ius tollit veniam, vix vidit mazim homero ad. Paulo definitiones et mei, nam ne illum scripta. Zril senserit at has, at est clita eirmod moderatius. Et mnesarchum posidonium sea, aliquid debitis oportere qui et. Vix no ullum adipiscing, an qui nulla temporibus.",
+      date_submitted: "2020-01-30T07:00:00.000Z",
+      author_id: 3,
+      author_name: "Tom",
+      park_code: "rmn"
+    },
+    {
+      id: 3,
+      comment_text:
+        "Ne velit facilis deserunt nam, eum lucilius constituto ex. Odio rebum dignissim ad mel, an ius tollit veniam, vix vidit mazim homero ad. Paulo definitiones et mei, nam ne illum scripta. Zril senserit at has, at est clita eirmod moderatius. Et mnesarchum posidonium sea, aliquid debitis oportere qui et. Vix no ullum adipiscing, an qui nulla temporibus.",
+      date_submitted: "2020-01-30T07:00:00.000Z",
+      author_id: 4,
+      author_name: "Carol",
+      park_code: "yipsy"
+    },
+    {
+      id: 4,
+      author_id: 1,
+      author_name: "Jane",
+      park_code: "obo",
+      comment_text:
+        "Ne velit facilis deserunt nam, eum lucilius constituto ex. Odio rebum dignissim ad mel, an ius tollit veniam, vix vidit mazim homero ad. Paulo definitiones et mei, nam ne illum scripta. Zril senserit at has, at est clita eirmod moderatius. Et mnesarchum posidonium sea, aliquid debitis oportere qui et. Vix no ullum adipiscing, an qui nulla temporibus.",
+      date_submitted: "2020-01-30T07:00:00.000Z"
+    }
+  ];
+}
+
+function makeXssComment() {
+  return [
+    {
+      id: 1,
+      comment_text: '<script>alert("xss");</script>',
+      author_name: "Jerk",
+      date_submitted: "2020-01-30T07:00:00.000Z",
+      author_id: 2,
+      park_code: "yell"
+    }
+  ];
+}
+
 module.exports = {
   makeUsersArray,
-  makeXssUser
+  makeXssUser,
+  makeCommentsArray,
+  makeXssComment
 };
