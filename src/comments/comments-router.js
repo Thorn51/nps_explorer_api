@@ -27,15 +27,14 @@ commentsRouter
       park_code: parkCode
     };
 
-    for (const field of ["commentText", "authorId", "authorName", "parkCode"])
-      if (!req.body[field]) {
-        logger.error(
-          `POST /api/comments -> missing '${field}' in request body`
-        );
-        return res
-          .status(400)
-          .json({ error: `Missing '${field}' in request body` });
-      }
+    if (!commentText) {
+      logger.error(
+        `POST /api/comments -> missing 'commentText' in request body`
+      );
+      return res
+        .status(400)
+        .json({ error: `Missing 'commentText' in request body` });
+    }
 
     newComment.author_id = req.user.id;
     newComment.author_name = req.user.first_name;
