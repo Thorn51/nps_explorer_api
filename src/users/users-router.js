@@ -124,15 +124,13 @@ usersRouter
   })
   // Remove user from database -> wired up but not used in client yet
   .delete((req, res, next) => {
-    const { id } = req.params;
+    const { user_id } = req.params;
 
-    UsersService.deleteUser(req.app.get("db"), id)
+    UsersService.deleteUser(req.app.get("db"), user_id)
       .then(() => {
-        res.status(204).json({
-          info: { message: `User id=${id} removed from database` }
-        });
+        res.status(204).end();
         logger.info(
-          `DELETE /api/users/ -> user with id ${id} removed from database`
+          `DELETE /api/users/:user_id -> user with id ${user_id} removed from database`
         );
       })
       .catch(next);
