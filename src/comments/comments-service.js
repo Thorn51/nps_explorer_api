@@ -1,3 +1,5 @@
+const xss = require("xss");
+
 // Perform CRUD operations on the comments table in the database
 const CommentsService = {
   // Retrieve all comments from the database
