@@ -20,7 +20,36 @@ commentsRouter
       .catch(next);
   })
   // Receive and store comments from the client
-  .post(bodyParser, (req, res, next) => {});
+  .post(bodyParser, (req, res, next) => {
+    const { commentText, parkCode } = req.body;
+    const newComment = {
+      comment_text: commentText,
+      park_code: parkCode
+    };
+
+    for (const field of ["commentText", "authorId", "authorName", "parkCode"])
+      if (!req.body[field]) {
+        logger.error(
+          `POST /api/comments -> missing '${field}' in request body`
+        );
+        return res
+          .status(400)
+          .json({ error: `Missing '${field}' in request body` });
+      }
+
+    newComment.author_id = req.user.id;
+    newComment.author_name = req.user.first_name;
+
+    CommentsService.insertComment(req.app.get("db"), newComment)
+      .then(comment => {
+        logger.info(`POST /api/comments -> Comment id ${comment.id} created`);
+        res
+          .status(200)
+          .location(path.posix.join(req.originalUrl, `/${comment.id}`))
+          .json(CommentsService.serializeComment(comment));
+      })
+      .catch(next);
+  });
 
 commentsRouter
   .route("/:comment_id")
