@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { makeUsersArray, makeXssUser } = require("./fixtures");
 
-describe.only("/api/users Endpoints", () => {
+describe("/api/users Endpoints", () => {
   let db;
 
   before(
@@ -191,7 +191,7 @@ describe.only("/api/users Endpoints", () => {
     });
   });
 
-  describe.only("PATCH /api/users:user_id", () => {
+  describe("PATCH /api/users:user_id", () => {
     const testUsers = makeUsersArray();
     before("Insert users for auth header", () => {
       return db("users").insert(prepUsers(testUsers));
