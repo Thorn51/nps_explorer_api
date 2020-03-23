@@ -98,4 +98,74 @@ describe.only("Comments Endpoints", () => {
         });
     });
   });
+
+  describe.only("GET /api/comments/:comment_id", () => {
+    const testUsers = makeUsersArray();
+    before("Insert users for auth header", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+    context("No data in comments table", () => {
+      it("Responds with error 404", () => {
+        const noCommentId = 200;
+        return supertest(app)
+          .get(`/api/comments/${noCommentId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `Comment doesn't exist` });
+      });
+    });
+
+    context("Data in the comments table", () => {
+      const testUsers = makeUsersArray();
+      const testComments = makeCommentsArray();
+
+      beforeEach("Insert users then comments (foreign key constraint)", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db.into("comments").insert(testComments);
+          });
+      });
+
+      it("GET /api/comments/:comment_id returns 200 and comment", () => {
+        const queryId = 3;
+        const expectedComment = testComments[queryId - 1];
+        return supertest(app)
+          .get(`/api/comments/${queryId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .then(res => {
+            expect(res.body.id).to.eql(expectedComment.id);
+            expect(res.body.authorName).to.eql(expectedComment.author_name);
+            expect(res.body.authorId).to.eql(expectedComment.author_id);
+            expect(res.body.commentText).to.eql(expectedComment.comment_text);
+            expect(res.body.parkCode).to.eql(expectedComment.park_code);
+          });
+      });
+    });
+
+    context("Given an XSS attack comment", () => {
+      const testUsers = makeUsersArray();
+      const xssComment = makeXssComment();
+
+      beforeEach("Insert user then comments (foreign key constraint)", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db.into("comments").insert(xssComment);
+          });
+      });
+
+      it("removes XSS content", () => {
+        return supertest(app)
+          .get(`/api/comments/${xssComment[0].id}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .expect(res => {
+            expect(res.body.commentText).to.eql(
+              '&lt;script&gt;alert("xss");&lt;/script&gt;'
+            );
+          });
+      });
+    });
+  });
 });
