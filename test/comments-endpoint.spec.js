@@ -99,13 +99,13 @@ describe.only("Comments Endpoints", () => {
     });
   });
 
-  describe.only("GET /api/comments/:comment_id", () => {
+  describe("GET /api/comments/:comment_id", () => {
     const testUsers = makeUsersArray();
     before("Insert users for auth header", () => {
       return db("users").insert(prepUsers(testUsers));
     });
     context("No data in comments table", () => {
-      it("Responds with error 404", () => {
+      it("Returns error 404", () => {
         const noCommentId = 200;
         return supertest(app)
           .get(`/api/comments/${noCommentId}`)
@@ -114,7 +114,7 @@ describe.only("Comments Endpoints", () => {
       });
     });
 
-    context("Data in the comments table", () => {
+    context("Data comments table", () => {
       const testUsers = makeUsersArray();
       const testComments = makeCommentsArray();
 
@@ -164,6 +164,53 @@ describe.only("Comments Endpoints", () => {
             expect(res.body.commentText).to.eql(
               '&lt;script&gt;alert("xss");&lt;/script&gt;'
             );
+          });
+      });
+    });
+  });
+
+  describe.only("DELETE /api/comments/:comment_id", () => {
+    const testUsers = makeUsersArray();
+    context("no data in the comments table", () => {
+      before("insert users for auth header", () => {
+        return db("users").insert(prepUsers(testUsers));
+      });
+      it("Returns status 404", () => {
+        const commentId = 123654;
+        return supertest(app)
+          .delete(`/api/comments/${commentId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `Comment doesn't exist` });
+      });
+    });
+
+    context("Insert users then comments -> foreign key constraint", () => {
+      const testUsers = makeUsersArray();
+      const testComments = makeCommentsArray();
+
+      beforeEach("Insert test data", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db.into("comments").insert(testComments);
+          });
+      });
+
+      it("Returns status 204 and removes comment", () => {
+        const commentIdToRemove = 3;
+        const expectedComments = testComments.filter(
+          comment => comment.id !== commentIdToRemove
+        );
+        return supertest(app)
+          .delete(`/api/comments/${commentIdToRemove}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(204)
+          .then(res => {
+            expect(res.body.id).to.eql(expectedComments.id);
+            expect(res.body.authorName).to.eql(expectedComments.author_name);
+            expect(res.body.authorId).to.eql(expectedComments.author_id);
+            expect(res.body.commentText).to.eql(expectedComments.comment_text);
+            expect(res.body.parkCode).to.eql(expectedComments.park_code);
           });
       });
     });
