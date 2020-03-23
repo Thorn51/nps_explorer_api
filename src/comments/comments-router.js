@@ -83,10 +83,32 @@ commentsRouter
 
     CommentsService.deleteComment(req.app.get("db"), comment_id).then(() => {
       res.status(204).end();
-      logger.info(`DELETE/api/comments -> Comment id ${comment_id} removed`);
+      logger.info(`DELETE /api/comments -> Comment id ${comment_id} removed`);
     });
   })
   // Edit a comment in the database by the comment id
-  .patch(bodyParser, (req, res, next) => {});
+  .patch(bodyParser, (req, res, next) => {
+    const { comment_id } = req.params;
+    const { commentText } = req.body;
+    const updateComment = { comment_text: commentText };
+
+    if (!commentText) {
+      logger.error(
+        `PATCH /api/comments/:comment_id -> Request to edit comment id ${comment_id} failed, request body missing 'commentText'`
+      );
+      return res
+        .status(400)
+        .json({ error: `Request body must contain 'commentTex'` });
+    }
+
+    CommentsService.editComment(req.app.get("db"), comment_id, updateComment)
+      .then(() => {
+        res.status(200).json({ info: "Request completed" });
+        logger.info(
+          `PATCH /api/comments/:comment_id -> Comment id ${comment_id} edited`
+        );
+      })
+      .catch(next);
+  });
 
 module.exports = commentsRouter;
