@@ -53,7 +53,25 @@ commentsRouter
 commentsRouter
   .route("/:comment_id")
   .all(requireAuth)
-  .all((req, res, next) => {})
+  // Perform validation on all
+  .all((req, res, next) => {
+    const { comment_id } = req.params;
+
+    CommentsService.getById(req.app.get("db"), comment_id)
+      .then(comment => {
+        if (!comment) {
+          logger.error(
+            `GET /api/comments/${comment_id} -> Comment doesn't exist`
+          );
+          return res.status(404).json({
+            error: `Comment doesn't exist `
+          });
+        }
+        res.comment = comment;
+        next();
+      })
+      .catch(next);
+  })
   // Get a comment from database by the comment id
   .get((req, res) => {})
   // Remove a comment from the database by the comment id
