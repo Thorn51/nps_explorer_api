@@ -14,7 +14,11 @@ commentsRouter
   // Return all comments from the database
   .get((req, res, next) => {})
   // Receive and store comments from the client
-  .post(bodyParser, (req, res, next) => {});
+  .post(bodyParser, (req, res, next) => {
+    CommentsService.getAllComments(req.app.get("db")).then(comments => {
+      res.json(comments.map(CommentsService.serializeComment));
+    });
+  });
 
 commentsRouter
   .route("/:comment_id")
