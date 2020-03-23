@@ -78,6 +78,80 @@ describe.only("/api/users Endpoints", () => {
     });
   });
 
+  describe("GET /api/users/:user_id", () => {
+    const testUsers = makeUsersArray();
+    before("Insert users", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+
+    context("No user in table", () => {
+      it("Responds with error 404", () => {
+        const noUserId = testUsers.length + 1;
+        return supertest(app)
+          .get(`/api/users/${noUserId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: { message: `User doesn't exist` } });
+      });
+    });
+
+    context("Users in table", () => {
+      const testUsers = makeUsersArray();
+
+      beforeEach("Insert users", () => {
+        return db("users").insert(prepUsers(testUsers));
+      });
+
+      it("GET /api/users/:user_id returns the user by id and status 200", () => {
+        const getId = 1;
+        const expectedUser = testUsers[getId - 1];
+        return supertest(app)
+          .get(`/api/users/${getId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .then(res => {
+            expect(res.body.firstName).to.eql(expectedUser.first_name);
+            expect(res.body.lastName).to.eql(expectedUser.last_name);
+            expect(res.body.email).to.eql(expectedUser.email);
+            expect(res.body).to.have.property("id");
+            expect(res.body).to.have.property("dateCreated");
+          });
+      });
+    });
+
+    context("Given XSS content", () => {
+      const xssUser = makeXssUser();
+
+      beforeEach("Insert malicious user", () => {
+        return db.into("users").insert(prepUsers(xssUser));
+      });
+
+      it("Removes XSS content", () => {
+        return supertest(app)
+          .get(`/api/users/${xssUser[1].id}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .expect(res => {
+            expect(res.body.firstName).to.eql(
+              '&lt;script&gt;alert("xss");&lt;/script&gt;'
+            );
+            expect(res.body.lastName).to.eql(
+              '<img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.'
+            );
+            expect(res.body.email).to.eql(
+              '&lt;script&gt;alert("xss");&lt;/script&gt;'
+            );
+            expect(res.body.nickname).to.eql(
+              '&lt;script&gt;alert("xss");&lt;/script&gt;'
+            );
+          });
+      });
+    });
+  });
+
+  describe.only("DELETE /api/users/:user_id", () => {
+    const testUsers = makeUsersArray();
+  });
+
   describe("POST /api/users", () => {
     context("User validation", () => {
       const testUsers = makeUsersArray();
@@ -218,7 +292,7 @@ describe.only("/api/users Endpoints", () => {
       });
     });
 
-    context.only("Registration success -> status 201", () => {
+    context("Registration success -> status 201", () => {
       it("Responds with status 201, serialized user, strong bcrypt password", () => {
         const newUser = {
           firstName: "Test",
