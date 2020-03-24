@@ -48,9 +48,29 @@ favoriteParksRouter
   .route("/:favorite_id")
   .all(requireAuth)
   // Perform validation for all
-  .all((req, res, next) => {})
+  .all((req, res, next) => {
+    const { favorite_id } = req.params;
+    console.log(favorite_id);
+    FavoriteParksService.getById(req.app.get("db"), favorite_id)
+      .then(favorite => {
+        if (!favorite) {
+          logger.error(
+            `GET /api/favorites/:favorite_id -> Favorite id ${favorite_id} doesn't exist`
+          );
+          return res.status(404).json({ error: `Favorite doesn't exist` });
+        }
+        res.favorite = favorite;
+        next();
+      })
+      .catch(next);
+  })
   // Return the favorite by its id
-  .get((req, res) => {})
+  .get((req, res) => {
+    res.status(200).json(FavoriteParksService.serializeFavorite(res.favorite));
+    logger.info(
+      `GET /api/favorites/:favorite_id -> Favorite id ${res.favorite.id} returned`
+    );
+  })
   // Remove favorite park from table -> Not wired up in client
   .delete((req, res, next) => {})
   // Change the boolean value of favorite
