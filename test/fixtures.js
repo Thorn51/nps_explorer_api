@@ -123,9 +123,39 @@ function makeXssComment() {
   ];
 }
 
+function makeFavoriteParksArray() {
+  return [
+    {
+      id: 1,
+      user_account: 4,
+      park_code: "yell",
+      favorite: false
+    },
+    {
+      id: 2,
+      user_account: 3,
+      park_code: "rmn",
+      favorite: true
+    },
+    {
+      id: 3,
+      user_account: 2,
+      park_code: "yose",
+      favorite: false
+    },
+    {
+      id: 4,
+      user_account: 1,
+      park_code: "glac",
+      favorite: true
+    }
+  ];
+}
+
 module.exports = {
   makeUsersArray,
   makeXssUser,
   makeCommentsArray,
-  makeXssComment
+  makeXssComment,
+  makeFavoriteParksArray
 };
