@@ -72,7 +72,18 @@ favoriteParksRouter
     );
   })
   // Remove favorite park from table -> Not wired up in client
-  .delete((req, res, next) => {})
+  .delete((req, res, next) => {
+    const { favorite_id } = req.params;
+
+    FavoriteParksService.deleteFavorite(req.app.get("db"), favorite_id)
+      .then(() => {
+        res.status(204).end();
+        logger.info(
+          `DELETE /api/favorites/:favorite_id -> Favorite id ${favorite_id} removed`
+        );
+      })
+      .catch(next);
+  })
   // Change the boolean value of favorite
   .patch(bodyParser, (req, res, next) => {});
 
