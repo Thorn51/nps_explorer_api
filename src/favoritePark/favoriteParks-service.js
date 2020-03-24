@@ -38,4 +38,4 @@ const FavoriteParksService = {
   }
 };
 
-module.exports = favorite_parksService;
+module.exports = FavoriteParksService;
