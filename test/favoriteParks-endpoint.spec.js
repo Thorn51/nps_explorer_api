@@ -5,7 +5,7 @@ const { makeUsersArray, makeFavoriteParksArray } = require("./fixtures");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-describe.only("Favorite Parks Endpoints", () => {
+describe("Favorite Parks Endpoints", () => {
   let db;
 
   before("Make knex instance with test database", () => {
@@ -19,11 +19,15 @@ describe.only("Favorite Parks Endpoints", () => {
   after("Disconnect from test database", () => db.destroy());
 
   before("Remove data from tables", () =>
-    db.raw("TRUNCATE favorite_parks, comments, users RESTART IDENTITY CASCADE")
+    db.raw(
+      "TRUNCATE favorite_parks, favorite_parks, users RESTART IDENTITY CASCADE"
+    )
   );
 
   afterEach("Remove data from tables", () =>
-    db.raw("TRUNCATE favorite_parks, comments, users RESTART IDENTITY CASCADE")
+    db.raw(
+      "TRUNCATE favorite_parks, favorite_parks, users RESTART IDENTITY CASCADE"
+    )
   );
 
   function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
@@ -110,17 +114,17 @@ describe.only("Favorite Parks Endpoints", () => {
     });
   });
 
-  describe.only("GET /api/favorite/:favorite_id", () => {
+  describe("GET /api/favorite/:favorite_id", () => {
     const testUsers = makeUsersArray();
     // Insert users here to make the authorization header
     before("Insert users", () => {
       return db("users").insert(prepUsers(testUsers));
     });
-    context("No data in comments table", () => {
+    context("No data in favorites table", () => {
       it("Returns error 404", () => {
-        const noCommentId = 200;
+        const noFavoriteId = 200;
         return supertest(app)
-          .get(`/api/favorites/${noCommentId}`)
+          .get(`/api/favorites/${noFavoriteId}`)
           .set("Authorization", makeAuthHeader(testUsers[0]))
           .expect(404, { error: `Favorite doesn't exist` });
       });
@@ -152,6 +156,111 @@ describe.only("Favorite Parks Endpoints", () => {
             expect(res.body.parkCode).to.eql(expectedFavorites.park_code);
             expect(res.body.favorite).to.eql(expectedFavorites.favorite);
           });
+      });
+    });
+  });
+  describe(`DELETE /api/favorites/:favorite_id`, () => {
+    const testUsers = makeUsersArray();
+    context("No data in tables", () => {
+      // Insert users to create the auth header
+      before("Insert users", () => {
+        return db("users").insert(testUsers);
+      });
+
+      it("Returns status 404", () => {
+        const favoriteId = 987456;
+        return supertest(app)
+          .delete(`/api/favorites/${favoriteId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `Favorite doesn't exist` });
+      });
+    });
+
+    context("Data in tables", () => {
+      const testUsers = makeUsersArray();
+      const testFavorites = makeFavoriteParksArray();
+      // Insert users then favorites -> foreign key constraint
+      beforeEach("Insert data", () => {
+        return db("users")
+          .insert(testUsers)
+          .then(() => {
+            return db("favorite_parks").insert(testFavorites);
+          });
+      });
+
+      it(`Returns status 204 and removes favorite`, () => {
+        const favoriteToRemove = 2;
+        const expectedFavorites = testFavorites.filter(
+          favorite => favorite.id !== favoriteToRemove
+        );
+        return supertest(app)
+          .delete(`/api/favorites/${favoriteToRemove}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(204);
+      });
+    });
+  });
+
+  describe("PATCH /api/favorites/:favorite_id", () => {
+    const testUsers = makeUsersArray();
+    // Add users to make auth header
+    before("Insert users", () => {
+      return db("users").insert(testUsers);
+    });
+    context("No data in tables", () => {
+      it("Responds with status 404", () => {
+        const badId = 765234;
+        return supertest(app)
+          .patch(`/api/favorites/${badId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `Favorite doesn't exist` });
+      });
+    });
+    context("Data in tables", () => {
+      const testUsers = makeUsersArray();
+      const testFavorites = makeFavoriteParksArray();
+      beforeEach("Insert data", () => {
+        return db("users")
+          .insert(testUsers)
+          .then(() => {
+            return db("favorite_parks").insert(testFavorites);
+          });
+      });
+      it("Responds with status 200 and updates favorite", () => {
+        const idToUpdate = 4;
+        const updatedFavorite = {
+          favorite: false
+        };
+        const expectedComment = {
+          ...testFavorites[idToUpdate - 1],
+          ...updatedFavorite
+        };
+        return supertest(app)
+          .patch(`/api/favorites/${idToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send(updatedFavorite)
+          .expect(200, { info: "Request completed" })
+          .then(() => {
+            return supertest(app)
+              .get(`/api/favorites/${idToUpdate}`)
+              .set("Authorization", makeAuthHeader(testUsers[0]))
+              .then(res => {
+                expect(res.body.id).to.eql(expectedComment.id);
+                expect(res.body.userAccount).to.eql(
+                  expectedComment.user_account
+                );
+                expect(res.body.parkCode).to.eql(expectedComment.park_code);
+                expect(res.body.favorite).to.eql(expectedComment.favorite);
+              });
+          });
+      });
+      it("Responds with status 400 when missing 'favorite' in request body", () => {
+        const idToUpdate = 5;
+        return supertest(app)
+          .patch(`/api/favorites/${idToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send({ noSuchField: "Testing" })
+          .expect(400, { error: `Request body must contain 'favorite'` });
       });
     });
   });
