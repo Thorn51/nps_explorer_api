@@ -5,7 +5,7 @@ const FavoriteParksService = {
     return knex.select("*").from("favorite_parks");
   },
   // Add a favorite park to the database
-  insertComment(knex, favorite) {
+  insertFavorite(knex, favorite) {
     return knex
       .insert(favorite)
       .into("favorite_parks")
@@ -14,12 +14,12 @@ const FavoriteParksService = {
         return rows[0];
       });
   },
-  // Find favorite park by id and then return it
-  getById(knex, id) {
+  // Get the users favorite parks
+  getByUserId(knex, user_account) {
     return knex
       .from("favorite_parks")
       .select("*")
-      .where("id", id)
+      .where("user_account", user_account)
       .first();
   },
   // Find favorite park by id and then delete
