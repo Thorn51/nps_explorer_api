@@ -43,7 +43,7 @@ commentsRouter
       .then(comment => {
         logger.info(`POST /api/comments -> Comment id ${comment.id} created`);
         res
-          .status(200)
+          .status(201)
           .location(path.posix.join(req.originalUrl, `/${comment.id}`))
           .json(CommentsService.serializeComment(comment));
       })
@@ -92,13 +92,10 @@ commentsRouter
     const { commentText } = req.body;
     const updateComment = { comment_text: commentText };
 
-    if (!commentText) {
-      logger.error(
-        `PATCH /api/comments/:comment_id -> Request to edit comment id ${comment_id} failed, request body missing 'commentText'`
-      );
+    if (commentText === undefined) {
       return res
         .status(400)
-        .json({ error: `Request body must contain 'commentTex'` });
+        .json({ error: `Request body must contain 'commentText'` });
     }
 
     CommentsService.editComment(req.app.get("db"), comment_id, updateComment)
