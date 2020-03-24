@@ -11,7 +11,15 @@ favoriteParksRouter
   .get("/")
   .all(requireAuth)
   // return all favorites
-  .get((req, res, next) => {})
+  .get((req, res, next) => {
+    FavoriteParksService.getAllFavorites(req.app.get("db"))
+      .then(favorites => {
+        // No user inputs so there is no need to pass through xss filter
+        res.status(200).json(favorites);
+        logger.info("GET /api/favorites -> All favorites returned");
+      })
+      .catch(next);
+  })
   // Create new favorite and add to favorite_parks table
   .post(bodyParser, (req, res, next) => {});
 
