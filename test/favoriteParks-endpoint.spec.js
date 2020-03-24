@@ -84,4 +84,29 @@ describe.only("Favorite Parks Endpoints", () => {
       });
     });
   });
+
+  describe("POST /api/favorites", () => {
+    const testUsers = makeUsersArray();
+
+    beforeEach("Insert test data", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+    it("Returns status 201 and new favorite", () => {
+      const newFavorite = {
+        favorite: true,
+        parkCode: "yell"
+      };
+      return supertest(app)
+        .post("/api/favorites")
+        .set("Authorization", makeAuthHeader(testUsers[0]))
+        .send(newFavorite)
+        .expect(201)
+        .expect(res => {
+          expect(res.body.favorite).to.eql(newFavorite.favorite);
+          expect(res.body.parkCode).to.eql(newFavorite.parkCode);
+          expect(res.body).to.have.property("id");
+          expect(res.body).to.have.property("userAccount");
+        });
+    });
+  });
 });
