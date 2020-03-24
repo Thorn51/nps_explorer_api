@@ -133,18 +133,30 @@ function makeFavoriteParksArray() {
     },
     {
       id: 2,
+      user_account: 4,
+      park_code: "yose",
+      favorite: true
+    },
+    {
+      id: 3,
+      user_account: 4,
+      park_code: "rmn",
+      favorite: false
+    },
+    {
+      id: 4,
       user_account: 3,
       park_code: "rmn",
       favorite: true
     },
     {
-      id: 3,
+      id: 5,
       user_account: 2,
       park_code: "yose",
       favorite: false
     },
     {
-      id: 4,
+      id: 6,
       user_account: 1,
       park_code: "glac",
       favorite: true
