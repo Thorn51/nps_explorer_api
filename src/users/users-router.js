@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const logger = require("../logger");
 const UsersService = require("./users-service");
-const xss = require("xss");
+const FavoriteParksService = require("../favoritePark/favoriteParks-service");
 const { validateBearerToken } = require("../middleware/basic-auth");
 const { requireAuth } = require("../middleware/jwt-auth");
 
@@ -94,6 +94,22 @@ usersRouter
         });
       }
     );
+  });
+
+usersRouter
+  .route("/favorites/:user_account")
+  .all(requireAuth)
+  // Get all favorites from favorite_parks table by user_account
+  .get((req, res, next) => {
+    const { user_account } = req.params;
+
+    FavoriteParksService.getByUserId(req.app.get("db"), user_account)
+      .then(favorites => {
+        res
+          .status(200)
+          .json(favorites.map(FavoriteParksService.serializeFavorite));
+      })
+      .catch(next);
   });
 
 usersRouter
