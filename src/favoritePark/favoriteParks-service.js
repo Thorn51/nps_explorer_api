@@ -38,10 +38,10 @@ const FavoriteParksService = {
   },
   serializeFavorite(favorite) {
     return {
-      id,
+      id: favorite.id,
       userAccount: favorite.user_account,
       parkCode: favorite.park_code,
-      favorite
+      favorite: favorite.favorite
     };
   }
 };
