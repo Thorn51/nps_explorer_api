@@ -34,9 +34,9 @@ const CommentsService = {
   // Find comment by id and then update it
   editComment(knex, id, updateFields) {
     return knex
-      .from("comment")
+      .from("comments")
       .where({ id })
-      .update();
+      .update(updateFields);
   },
   // SECURITY  -> Remove xss content from comments submitted through the client
   serializeComment(comment) {
