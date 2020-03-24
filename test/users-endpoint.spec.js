@@ -3,7 +3,11 @@ const knex = require("knex");
 const app = require("../src/app");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { makeUsersArray, makeXssUser } = require("./fixtures");
+const {
+  makeUsersArray,
+  makeXssUser,
+  makeFavoriteParksArray
+} = require("./fixtures");
 
 describe("/api/users Endpoints", () => {
   let db;
@@ -73,6 +77,51 @@ describe("/api/users Endpoints", () => {
             expect(res.body.email).to.eql(testUsers.email);
             expect(res.body.nickname).to.eql(testUsers.nickname);
             expect(res.body.home_state).to.eql(testUsers.home_state);
+          });
+      });
+    });
+  });
+
+  describe("GET /api/users/favorites/:user_account", () => {
+    context("No data", () => {
+      const testUsers = makeUsersArray();
+      // Insert users here to make the authorization header
+      before("Insert users", () => {
+        return db("users").insert(prepUsers(testUsers));
+      });
+      it("Returns status 200 and empty array", () => {
+        const userAccountId = 1;
+        return supertest(app)
+          .get(`/api/users/favorites/${userAccountId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200, []);
+      });
+    });
+
+    context("Data in the favorite_parks table", () => {
+      const testUsers = makeUsersArray();
+      const testFavorites = makeFavoriteParksArray();
+
+      // Insert users then favorites -> foreign key constraint
+      beforeEach("Insert data", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db("favorite_parks").insert(testFavorites);
+          });
+      });
+
+      it("GET /api/users/favorites/:user_account returns status 200 and all users favorites", () => {
+        const userAccount = 1;
+        return supertest(app)
+          .get(`/api/users/favorites/${userAccount}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .then(res => {
+            expect(res.body.id).to.eql(testFavorites.id);
+            expect(res.body.userAccount).to.eql(testFavorites.user_account);
+            expect(res.body.parkCode).to.eql(testFavorites.park_code);
+            expect(res.body.favorite).to.eql(testFavorites.favorite);
           });
       });
     });
