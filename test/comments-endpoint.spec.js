@@ -49,7 +49,8 @@ describe.only("Comments Endpoints", () => {
   describe("GET /api/comments", () => {
     context("No data", () => {
       const testUsers = makeUsersArray();
-      before("Insert users for auth header", () => {
+      // Insert users here to make the authorization header
+      before("Insert users", () => {
         return db("users").insert(prepUsers(testUsers));
       });
       it("Returns status 200 and empty array", () => {
@@ -78,30 +79,31 @@ describe.only("Comments Endpoints", () => {
         .send(newComment)
         .expect(201)
         .expect(res => {
-          expect(res.body.commentText).to.eql(newComment.comment_text);
-          expect(res.body.parkCode).to.eql(newComment.park_code);
-          expect(res.body).to.have.property("author_id");
+          expect(res.body.commentText).to.eql(newComment.commentText);
+          expect(res.body.parkCode).to.eql(newComment.parkCode);
+          expect(res.body).to.have.property("authorId");
           expect(res.body).to.have.property("id");
-          expect(res.body).to.have.property("author_name");
-          expect(res.body).to.have.property("date_submitted");
+          expect(res.body).to.have.property("authorName");
+          expect(res.body).to.have.property("dateSubmitted");
           expect(res.headers.location).to.eql(`/api/comments/${res.body.id}`);
         });
     });
 
-    it(`responds with status 400 when 'comment_text' is missing from request body`, () => {
+    it(`responds with status 400 when 'commentText' is missing from request body`, () => {
       return supertest(app)
         .post("/api/comments")
         .set("Authorization", makeAuthHeader(testUsers[0]))
         .send({})
         .expect(400, {
-          error: `Missing 'commentText' in the request body`
+          error: `Missing 'commentText' in request body`
         });
     });
   });
 
   describe("GET /api/comments/:comment_id", () => {
     const testUsers = makeUsersArray();
-    before("Insert users for auth header", () => {
+    // Insert users here to make the authorization header
+    before("Insert users", () => {
       return db("users").insert(prepUsers(testUsers));
     });
     context("No data in comments table", () => {
@@ -147,7 +149,8 @@ describe.only("Comments Endpoints", () => {
       const testUsers = makeUsersArray();
       const xssComment = makeXssComment();
 
-      beforeEach("Insert user then comments (foreign key constraint)", () => {
+      // Insert users then comments -> foreign key constraint
+      beforeEach("Insert data)", () => {
         return db("users")
           .insert(prepUsers(testUsers))
           .then(() => {
@@ -169,10 +172,11 @@ describe.only("Comments Endpoints", () => {
     });
   });
 
-  describe.only("DELETE /api/comments/:comment_id", () => {
+  describe("DELETE /api/comments/:comment_id", () => {
     const testUsers = makeUsersArray();
     context("no data in the comments table", () => {
-      before("insert users for auth header", () => {
+      // Insert users here to make the authorization header
+      before("insert users", () => {
         return db("users").insert(prepUsers(testUsers));
       });
       it("Returns status 404", () => {
@@ -184,7 +188,8 @@ describe.only("Comments Endpoints", () => {
       });
     });
 
-    context("Insert users then comments -> foreign key constraint", () => {
+    //Insert users then comments -> foreign key constraint
+    context("Insert data", () => {
       const testUsers = makeUsersArray();
       const testComments = makeCommentsArray();
 
@@ -212,6 +217,62 @@ describe.only("Comments Endpoints", () => {
             expect(res.body.commentText).to.eql(expectedComments.comment_text);
             expect(res.body.parkCode).to.eql(expectedComments.park_code);
           });
+      });
+    });
+  });
+
+  describe("PATCH /api/comments/:comment_id", () => {
+    const testUsers = makeUsersArray();
+    before("insert users for auth header", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+    context("no data in comments table", () => {
+      it("responds with status 404", () => {
+        const commentId = 654123;
+        return supertest(app)
+          .patch(`/api/comments/${commentId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `Comment doesn't exist` });
+      });
+    });
+
+    context("data in comments table", () => {
+      const testUsers = makeUsersArray();
+      const testComments = makeCommentsArray();
+
+      // Insert users then comments -> foreign key constraint
+      beforeEach("Insert data", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db.into("comments").insert(testComments);
+          });
+      });
+
+      it("responds with status 204 and updates the comment", () => {
+        const idToUpdate = 2;
+        const updatedComment = {
+          commentText: "Testing the patch method"
+        };
+        const expectedComment = {
+          ...testComments[idToUpdate - 1],
+          ...updatedComment
+        };
+        return supertest(app)
+          .patch(`/api/comments/${idToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send(updatedComment)
+          .expect(200, { info: "Request completed" });
+        // Need some more expect statements here
+      });
+
+      it("Returns status 400 when required fields are missing", () => {
+        const idToUpdate = 2;
+        return supertest(app)
+          .patch(`/api/comments/${idToUpdate}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .send({ irrelevantField: "No Field Exists" })
+          .expect(400, { error: `Request body must contain 'commentText'` });
       });
     });
   });
