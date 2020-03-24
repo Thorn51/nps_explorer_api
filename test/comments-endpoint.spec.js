@@ -60,6 +60,34 @@ describe("Comments Endpoints", () => {
           .expect(200, []);
       });
     });
+
+    context("Data in tables", () => {
+      const testUsers = makeUsersArray();
+      const testComments = makeCommentsArray();
+
+      beforeEach("Insert data", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db("comments").insert(testComments);
+          });
+      });
+
+      it("Returns status 200 and all comments", () => {
+        return supertest(app)
+          .get("/api/comments")
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .then(res => {
+            expect(res.body.id).to.eql(testComments.id);
+            expect(res.body.commentText).to.eql(testComments.comment_text);
+            expect(res.body.authorId).to.eql(testComments.author_id);
+            expect(res.body.authorName).to.eql(testComments.author_name);
+            expect(res.body.parkCode).to.eql(testComments.park_code);
+            expect(res.body[0]).to.have.property("dateSubmitted");
+          });
+      });
+    });
   });
 
   describe("POST /api/comments", () => {
