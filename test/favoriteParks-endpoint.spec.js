@@ -109,4 +109,50 @@ describe.only("Favorite Parks Endpoints", () => {
         });
     });
   });
+
+  describe.only("GET /api/favorite/:favorite_id", () => {
+    const testUsers = makeUsersArray();
+    // Insert users here to make the authorization header
+    before("Insert users", () => {
+      return db("users").insert(prepUsers(testUsers));
+    });
+    context("No data in comments table", () => {
+      it("Returns error 404", () => {
+        const noCommentId = 200;
+        return supertest(app)
+          .get(`/api/favorites/${noCommentId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `Favorite doesn't exist` });
+      });
+    });
+
+    context("Data in favorites table", () => {
+      const testUsers = makeUsersArray();
+      const testFavorites = makeFavoriteParksArray();
+
+      // Insert users then favorite -> foreign key constraint
+      beforeEach("Insert data)", () => {
+        return db("users")
+          .insert(prepUsers(testUsers))
+          .then(() => {
+            return db.into("favorite_parks").insert(testFavorites);
+          });
+      });
+
+      it("GET /api/favorites/:favorite_id returns 200 and favorite", () => {
+        const queryId = 3;
+        const expectedFavorites = testFavorites[queryId - 1];
+        return supertest(app)
+          .get(`/api/favorites/${queryId}`)
+          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .expect(200)
+          .then(res => {
+            expect(res.body.id).to.eql(expectedFavorites.id);
+            expect(res.body.userAccount).to.eql(expectedFavorites.user_account);
+            expect(res.body.parkCode).to.eql(expectedFavorites.park_code);
+            expect(res.body.favorite).to.eql(expectedFavorites.favorite);
+          });
+      });
+    });
+  });
 });
