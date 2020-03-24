@@ -14,13 +14,20 @@ const FavoriteParksService = {
         return rows[0];
       });
   },
-  // Get the users favorite parks
+  // Get favorite by favorite_parks id
+  getById(knex, id) {
+    return knex
+      .from("favorite_parks")
+      .select("*")
+      .where("id", id)
+      .first();
+  },
+  // Get all favorite_parks by user_account
   getByUserId(knex, user_account) {
     return knex
       .from("favorite_parks")
       .select("*")
-      .where("user_account", user_account)
-      .first();
+      .where("user_account", user_account);
   },
   // Find favorite park by id and then delete
   deleteFavorite(knex, id) {
