@@ -35,6 +35,14 @@ const FavoriteParksService = {
       .from("favorite_parks")
       .where({ id })
       .update(updateFields);
+  },
+  serializeFavorite(favorite) {
+    return {
+      id,
+      userAccount: favorite.user_account,
+      parkCode: favorite.park_code,
+      favorite
+    };
   }
 };
 
