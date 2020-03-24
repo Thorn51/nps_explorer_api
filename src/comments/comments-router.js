@@ -95,7 +95,8 @@ commentsRouter
     if (commentText === undefined) {
       return res
         .status(400)
-        .json({ error: `Request body must contain 'commentText'` });
+        .json({ error: `Request body must contain 'commentText'` })
+        .catch(next);
     }
 
     CommentsService.editComment(req.app.get("db"), comment_id, updateComment)
