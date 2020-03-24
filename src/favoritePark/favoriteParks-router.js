@@ -5,16 +5,18 @@ const FavoriteParksService = require("./favoriteParks-service");
 const { requireAuth } = require("../middleware/jwt-auth");
 
 const favoriteParksRouter = express.Router();
-const bodyParser = express.json;
+const bodyParser = express.json();
 
 favoriteParksRouter
-  .get("/")
+  .route("/")
   .all(requireAuth)
   // return all favorites
   .get((req, res, next) => {
     FavoriteParksService.getAllFavorites(req.app.get("db"))
       .then(favorites => {
-        res.status(200).json(favorites);
+        res
+          .status(200)
+          .json(favorites.map(FavoriteParksService.serializeFavorite));
         logger.info("GET /api/favorites -> All favorites returned");
       })
       .catch(next);
