@@ -120,7 +120,8 @@ describe("Comments Endpoints", () => {
       const testUsers = makeUsersArray();
       const testComments = makeCommentsArray();
 
-      beforeEach("Insert users then comments (foreign key constraint)", () => {
+      // Insert users then comments -> foreign key constraint
+      beforeEach("Insert data)", () => {
         return db("users")
           .insert(prepUsers(testUsers))
           .then(() => {
