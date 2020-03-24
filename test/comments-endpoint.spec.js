@@ -218,7 +218,7 @@ describe("Comments Endpoints", () => {
     });
 
     //Insert users then comments -> foreign key constraint
-    context("Insert data", () => {
+    context("Data in tables", () => {
       const testUsers = makeUsersArray();
       const testComments = makeCommentsArray();
 
@@ -238,14 +238,7 @@ describe("Comments Endpoints", () => {
         return supertest(app)
           .delete(`/api/comments/${commentIdToRemove}`)
           .set("Authorization", makeAuthHeader(testUsers[0]))
-          .expect(204)
-          .then(res => {
-            expect(res.body.id).to.eql(expectedComments.id);
-            expect(res.body.authorName).to.eql(expectedComments.author_name);
-            expect(res.body.authorId).to.eql(expectedComments.author_id);
-            expect(res.body.commentText).to.eql(expectedComments.comment_text);
-            expect(res.body.parkCode).to.eql(expectedComments.park_code);
-          });
+          .expect(204);
       });
     });
   });
@@ -278,7 +271,7 @@ describe("Comments Endpoints", () => {
           });
       });
 
-      it("responds with status 204 and updates the comment", () => {
+      it("responds with status 200 and updates the comment", () => {
         const idToUpdate = 2;
         const updatedComment = {
           commentText: "Testing the patch method"
@@ -292,7 +285,7 @@ describe("Comments Endpoints", () => {
           .set("Authorization", makeAuthHeader(testUsers[0]))
           .send(updatedComment)
           .expect(200, { info: "Request completed" });
-        // Need some more expect statements here
+        // Need assertions
       });
 
       it("Returns status 400 when required fields are missing", () => {
