@@ -85,6 +85,32 @@ favoriteParksRouter
       .catch(next);
   })
   // Change the boolean value of favorite
-  .patch(bodyParser, (req, res, next) => {});
+  .patch(bodyParser, (req, res, next) => {
+    const { favorite_id } = req.params;
+    const { favorite } = req.body;
+    const updateFavorite = { favorite };
+
+    if (favorite === undefined) {
+      logger.error(
+        `PATCH /api/favorites/:favorite_id -> Missing 'favorite' in request body`
+      );
+      return res
+        .status(400)
+        .json({ error: `Request body must contain 'favorite'` });
+    }
+
+    FavoriteParksService.editFavorite(
+      req.app.get("db"),
+      favorite_id,
+      updateFavorite
+    )
+      .then(() => {
+        res.status(200).json({ info: "Request completed" });
+        logger.info(
+          `PATCH /api/favorites/:favorite_id -> favorite id ${favorite_id} edited`
+        );
+      })
+      .catch(next);
+  });
 
 module.exports = favoriteParksRouter;
