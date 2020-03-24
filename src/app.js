@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const usersRouter = require("./users/users-router");
 const commentsRouter = require("./comments/comments-router");
+const favoriteParksRouter = require("./favoritePark/favoriteParks-router");
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cors());
 
 app.use("/api/users", usersRouter);
 app.use("/api/comments", commentsRouter);
+app.use("/api/favorites", favoriteParksRouter);
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
