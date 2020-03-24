@@ -9,7 +9,7 @@ const {
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-describe.only("Comments Endpoints", () => {
+describe("Comments Endpoints", () => {
   let db;
 
   before("Make knex instance with test database", () => {
