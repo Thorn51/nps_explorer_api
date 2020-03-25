@@ -9,7 +9,7 @@ const {
   makeFavoriteParksArray
 } = require("./fixtures");
 
-describe("/api/users Endpoints", () => {
+describe.only("/api/users Endpoints", () => {
   let db;
 
   before(
@@ -49,7 +49,7 @@ describe("/api/users Endpoints", () => {
     return preppedUsers;
   }
 
-  describe.only("GET /api/users", () => {
+  describe("GET /api/users", () => {
     context("No data in users table", () => {
       it("Returns an empty array and status 200", () => {
         return supertest(app)
