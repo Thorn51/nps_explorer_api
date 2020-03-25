@@ -17,11 +17,7 @@ usersRouter
   .get((req, res, next) => {
     UsersService.getAllUsers(req.app.get("db"))
       .then(users => {
-        res.json(
-          users.map(user => {
-            UsersService.serializeUser(user);
-          })
-        );
+        res.json(users.map(UsersService.serializeUser));
       })
       .catch(next);
     logger.info(`GET /users successful`);
