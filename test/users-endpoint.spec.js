@@ -49,7 +49,7 @@ describe("/api/users Endpoints", () => {
     return preppedUsers;
   }
 
-  describe("GET /api/users", () => {
+  describe.only("GET /api/users", () => {
     context("No data in users table", () => {
       it("Returns an empty array and status 200", () => {
         return supertest(app)
