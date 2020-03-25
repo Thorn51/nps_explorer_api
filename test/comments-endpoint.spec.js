@@ -9,7 +9,7 @@ const {
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-describe("Comments Endpoints", () => {
+describe.only("Comments Endpoints", () => {
   let db;
 
   before("Make knex instance with test database", () => {
@@ -46,7 +46,7 @@ describe("Comments Endpoints", () => {
     return preppedUsers;
   }
 
-  describe("GET /api/comments", () => {
+  describe.only("GET /api/comments", () => {
     context("No data", () => {
       const testUsers = makeUsersArray();
       // Insert users here to make the authorization header
@@ -56,7 +56,7 @@ describe("Comments Endpoints", () => {
       it("Returns status 200 and empty array", () => {
         return supertest(app)
           .get("/api/comments")
-          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .set("Authorization", "bearer " + process.env.API_Token)
           .expect(200, []);
       });
     });
@@ -76,7 +76,7 @@ describe("Comments Endpoints", () => {
       it("Returns status 200 and all comments", () => {
         return supertest(app)
           .get("/api/comments")
-          .set("Authorization", makeAuthHeader(testUsers[0]))
+          .set("Authorization", "bearer " + process.env.API_Token)
           .expect(200)
           .then(res => {
             expect(res.body.id).to.eql(testComments.id);

@@ -5,7 +5,7 @@ const { makeUsersArray } = require("./fixtures");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-describe.only("Auth Endpoints", () => {
+describe("Auth Endpoints", () => {
   let db;
 
   const testUsers = makeUsersArray();
