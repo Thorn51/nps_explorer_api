@@ -21,9 +21,7 @@ app.use("/api/favorites", favoriteParksRouter);
 app.use(function errorHandler(error, req, res, next) {
   let response;
   if (process.env.NODE_ENV === "production") {
-    // response = { error: { message: "server error" } };
-    console.log(error);
-    response = { message: error.message, error };
+    response = { error: { message: "server error" } };
   } else {
     console.log(error);
     response = { message: error.message, error };
