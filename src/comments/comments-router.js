@@ -3,15 +3,15 @@ const path = require("path");
 const logger = require("../logger");
 const CommentsService = require("./comments-service");
 const { requireAuth } = require("../middleware/jwt-auth");
+const { validateBearerToken } = require("../middleware/basic-auth");
 
 const commentsRouter = express.Router();
 const bodyParser = express.json();
 
 commentsRouter
   .route("/")
-  .all(requireAuth)
   // Return all comments from the database
-  .get((req, res, next) => {
+  .get(validateBearerToken, (req, res, next) => {
     CommentsService.getAllComments(req.app.get("db"))
       .then(comments => {
         res.json(comments.map(CommentsService.serializeComment));
@@ -20,7 +20,7 @@ commentsRouter
       .catch(next);
   })
   // Receive and store comments from the client
-  .post(bodyParser, (req, res, next) => {
+  .post(requireAuth, bodyParser, (req, res, next) => {
     const { commentText, parkCode } = req.body;
     const newComment = {
       comment_text: commentText,
