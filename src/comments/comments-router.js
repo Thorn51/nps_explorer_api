@@ -14,7 +14,9 @@ commentsRouter
   .get(validateBearerToken, (req, res, next) => {
     CommentsService.getAllComments(req.app.get("db"))
       .then(comments => {
-        res.json(comments.map(CommentsService.serializeComment));
+        res.json(
+          comments.map(comment => CommentsService.serializeComment(comment))
+        );
         logger.info("GET /api/comments -> All comments returned");
       })
       .catch(next);

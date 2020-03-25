@@ -16,7 +16,11 @@ favoriteParksRouter
       .then(favorites => {
         res
           .status(200)
-          .json(favorites.map(FavoriteParksService.serializeFavorite));
+          .json(
+            favorites.map(favorite =>
+              FavoriteParksService.serializeFavorite(favorite)
+            )
+          );
         logger.info("GET /api/favorites -> All favorites returned");
       })
       .catch(next);

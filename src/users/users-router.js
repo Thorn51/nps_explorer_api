@@ -107,7 +107,11 @@ usersRouter
       .then(favorites => {
         res
           .status(200)
-          .json(favorites.map(FavoriteParksService.serializeFavorite));
+          .json(
+            favorites.map(favorite =>
+              FavoriteParksService.serializeFavorite(favorite)
+            )
+          );
       })
       .catch(next);
   });
