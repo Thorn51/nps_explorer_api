@@ -50,7 +50,6 @@ favoriteParksRouter
   // Perform validation for all
   .all((req, res, next) => {
     const { favorite_id } = req.params;
-    console.log(favorite_id);
     FavoriteParksService.getById(req.app.get("db"), favorite_id)
       .then(favorite => {
         if (!favorite) {
