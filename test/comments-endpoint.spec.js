@@ -9,7 +9,7 @@ const {
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-describe.only("Comments Endpoints", () => {
+describe("Comments Endpoints", () => {
   let db;
 
   before("Make knex instance with test database", () => {
@@ -46,7 +46,7 @@ describe.only("Comments Endpoints", () => {
     return preppedUsers;
   }
 
-  describe.only("GET /api/comments", () => {
+  describe("GET /api/comments", () => {
     context("No data", () => {
       const testUsers = makeUsersArray();
       // Insert users here to make the authorization header
