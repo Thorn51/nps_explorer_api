@@ -43,12 +43,13 @@ authRouter.post("/login", bodyParser, (req, res, next) => {
         );
 
         // Create TWT and send in response. Payload information is useable in client, so if you need more add it. May need to come back and add the state the user is from if I decide to go that
+        // Lesson learned payload values cannot be null
         const sub = dbUser.email;
         const payload = {
           userId: dbUser.id,
-          firstName: dbUser.first_name,
-          nickname: dbUser.nickname,
-          homeState: dbUser.home_state
+          firstName: dbUser.first_name
+          // nickname: dbUser.nickname,
+          // homeState: dbUser.home_state
         };
         res.send({
           authToken: AuthService.createJwt(sub, payload)
@@ -58,4 +59,4 @@ authRouter.post("/login", bodyParser, (req, res, next) => {
     .catch(next);
 });
 
-module.export = authRouter;
+module.exports = authRouter;
