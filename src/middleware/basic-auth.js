@@ -43,10 +43,8 @@ function requireAuth(req, res, next) {
 
 // Check to ensure the client submitted an API token and that it is correct
 function validateBearerToken(req, res, next) {
-  const apiToken = process.env.API_Token;
+  const apiToken = process.env.API_TOKEN;
   const authToken = req.get("Authorization");
-
-  console.log(authToken.split(" ")[1], process.env.API_Token);
 
   if (!authToken || authToken.split(" ")[1] !== apiToken) {
     logger.error("The client API token is missing or incorrect");
