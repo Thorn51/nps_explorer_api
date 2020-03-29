@@ -10,9 +10,8 @@ const bodyParser = express.json();
 
 favoriteParksRouter
   .route("/")
-  .all(validateBearerToken)
   // return all favorites
-  .get((req, res, next) => {
+  .get(validateBearerToken, (req, res, next) => {
     FavoriteParksService.getAllFavorites(req.app.get("db"))
       .then(favorites => {
         res
@@ -27,7 +26,7 @@ favoriteParksRouter
       .catch(next);
   })
   // Create new favorite and add to favorite_parks table
-  .post(bodyParser, (req, res, next) => {
+  .post(requireAuth, bodyParser, (req, res, next) => {
     const { parkCode, favorite = false } = req.body;
     const newFavorite = { park_code: parkCode, favorite: favorite };
 
