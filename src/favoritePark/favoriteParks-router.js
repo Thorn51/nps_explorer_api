@@ -3,13 +3,14 @@ const path = require("path");
 const logger = require("../logger");
 const FavoriteParksService = require("./favoriteParks-service");
 const { requireAuth } = require("../middleware/jwt-auth");
+const { validateBearerToken } = require("../middleware/basic-auth");
 
 const favoriteParksRouter = express.Router();
 const bodyParser = express.json();
 
 favoriteParksRouter
   .route("/")
-  .all(requireAuth)
+  .all(validateBearerToken)
   // return all favorites
   .get((req, res, next) => {
     FavoriteParksService.getAllFavorites(req.app.get("db"))
