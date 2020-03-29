@@ -98,7 +98,7 @@ usersRouter
 
 usersRouter
   .route("/favorites/:user_account")
-  .all(requireAuth)
+  .all(validateBearerToken)
   // Get all favorites from favorite_parks table by user_account
   .get((req, res, next) => {
     const { user_account } = req.params;
