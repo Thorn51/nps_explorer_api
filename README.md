@@ -18,7 +18,7 @@ The second level of authorization middleware creates a JSON Web Token (JWT) afte
 
 Scheme `HTTPS`
 
-`[ Base URL: https://build-wine-seven.now.sh/]`
+`[ Base URL: https://boiling-anchorage-66066.herokuapp.com/]`
 
 ## Comments
 
@@ -41,25 +41,29 @@ Request all of the comments. Requires basic token for authorization.
 
     [
         {
-        "id": 12,
-        "project_title": "Testing",
-        "project_summary": "Testing on firefox",
-        "date_submitted": "2020-02-19T00:10:26.260Z",
-        "status": "Idea",
-        "github": "",
-        "votes": "1",
-        "author": 2
-        },
-        {
         "id": 1,
-        "project_title": "Legislative Agenda ",
-        "project_summary": "A place where citizens can vote and comment on the activities of congress. Constituents can provide their feedback on legislation, so their voice is heard in Congress.\n\nFeatures \nList of all legislation that users can read summaries, full bill, arguments for or against. Then the user can vote and comment on the legislation.",
-        "date_submitted": "2020-02-11T00:56:32.690Z",
-        "status": "Idea",
-        "github": "",
-        "votes": "2",
-        "author": 2
-        }
+        "commentText": "Bent's Old Fort is an 1833 fort located in Otero County in southeastern Colorado, United States.",
+        "authorId": 1,
+        "authorName": "Demo",
+        "parkCode": "beol",
+        "dateSubmitted": "2020-03-25T20:09:42.774Z"
+    },
+    {
+        "id": 2,
+        "commentText": "Some amazaing fishing.",
+        "authorId": 1,
+        "authorName": "Demo",
+        "parkCode": "blca",
+        "dateSubmitted": "2020-03-25T21:19:14.708Z"
+    },
+    {
+        "id": 3,
+        "commentText": "Santa Fe Trail Encampment*\nJune 5-7, 2020\n\nOne of the park’s main living history events for the year will feature historic interpretations of the Santa Fe Trail with a focus on the summer of 1843. Tensions are rising as raiders sanctioned by the Republic of Texas are raiding Mexican caravans along the trail. Experience the hey-day of the trail through ongoing demonstrations.",
+        "authorId": 1,
+        "authorName": "Demo",
+        "parkCode": "beol",
+        "dateSubmitted": "2020-03-27T12:02:35.924Z"
+    }
     ]
 
 **Request Error**
@@ -70,14 +74,14 @@ Request fails due to missing authorization basic token in header.
 
     { error: "Unauthorized request" }
 
-### `POST` /api/ideas
+### `POST` /api/comments
 
-Submit a new idea. Requires JWT for authorization middleware.
+Submit a new comment. Requires JWT for authorization middleware.
 
 **Request Body Requirements**
 
-- "project_title"
-- "project_summary"
+- "commentText"
+- "parkCoce"
 
 **Request**
 
@@ -85,8 +89,8 @@ Submit a new idea. Requires JWT for authorization middleware.
     Authorization: JWT
     Request Body:
         {
-            "project_title": "Documentation",
-            "project_summary": "Writing the documentation for the API."
+            "commentText": "Test documentation.",
+            "parkCode": "dnoex"
         }
 
 **Response**
@@ -94,14 +98,12 @@ Submit a new idea. Requires JWT for authorization middleware.
     Status 201 Created
 
     {
-        "id": 13,
-        "project_title": "Documentation",
-        "project_summary": "Writing the documentation for the API.",
-        "date_submitted": "2020-02-19T20:03:58.787Z",
-        "github": "",
-        "votes": "0",
-        "status": "Idea",
-        "author": 2
+        "id": 10,
+        "commentText": "Test documentation.",
+        "authorId": 1,
+        "authorName": "Demo",
+        "parkCode": "dnoex",
+        "dateSubmitted": "2020-04-03T17:21:24.170Z"
     }
 
 **Request Error**
@@ -114,23 +116,23 @@ Request fails without JWT.
         "error": "Unauthorized request"
     }
 
-Request fails when project_title missing in request body.
+Request fails when commentText missing in request body.
 
     Status 400 Bad request
 
     {
         "error": {
-            "message": "Missing 'project_title' in request body."
+            "message": "Missing 'commentText' in request body."
         }
     }
 
-Request fails when project_summary missing in request body.
+Request fails when parkCode missing in request body.
 
     Status 400 Bad request
 
     {
         "error": {
-            "message": "Missing 'project_summary' in request body."
+            "message": "Missing 'parkCode' in request body."
         }
     }
 
@@ -144,7 +146,7 @@ Get a comment using the comment id. Requires JWT for authorization middleware.
 
 **Request**
 
-    GET /api/comments/13
+    GET /api/comments/10
     Authorization: JWT
 
 **Response**
@@ -152,14 +154,12 @@ Get a comment using the comment id. Requires JWT for authorization middleware.
     Status 200 Ok
 
     {
-        "id": 13,
-        "project_title": "Documentation",
-        "project_summary": "Writing the documentation for the API.",
-        "date_submitted": "2020-02-19T20:03:58.787Z",
-        "github": "",
-        "votes": "0",
-        "status": "Idea",
-        "author": 2
+        "id": 10,
+        "commentText": "Test documentation.",
+        "authorId": 1,
+        "authorName": "Demo",
+        "parkCode": "dnoex",
+        "dateSubmitted": "2020-04-03T17:21:24.170Z"
     }
 
 **Response Error**
@@ -178,7 +178,7 @@ Request fails when the idea doesn't exist.
 
     {
         "error": {
-            "message": "Idea doesn't exist"
+            "message": "Comment doesn't exist"
         }
     }
 
@@ -192,7 +192,7 @@ Remove an comment from the database. Requires JWT for authorization middleware.
 
 **Request**
 
-    DELETE /api/comments/13
+    DELETE /api/comments/10
     Authorization: JWT
 
 **Response**
@@ -209,13 +209,13 @@ Request fails without JWT.
         "error": "Unauthorized request"
     }
 
-Request fails when the idea doesn't exist.
+Request fails when the comment doesn't exist.
 
     Status 404 Not Found
 
     {
         "error": {
-            "message": "Idea doesn't exist"
+            "message": "Comment doesn't exist"
         }
     }
 
@@ -232,11 +232,10 @@ The request body must contain one or all of the editable fields.
 
 - parkCode
 - comment
-- status
 
 **Request**
 
-    PATCH /api/comments/13
+    PATCH /api/comments/10
     Authorization: JWT
     Request Body:
         {
@@ -265,7 +264,7 @@ Request fails when the idea doesn't exist.
 
     {
         "error": {
-            "message": "Idea doesn't exist"
+            "message": "Comment doesn't exist"
         }
     }
 
@@ -273,7 +272,7 @@ Request fails when required field is missing from request body.
 
     {
         "error": {
-            "message": "Request body must contain project_title, project_summary, status, and or votes"
+            "message": "Request body must contain commentTex and or parkCode"
         }
     }
 
